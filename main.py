@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.models.databases import database
-from app.routers import users, students
+from app.routers import users, students, assignments
 import settings
 
 
@@ -28,6 +28,7 @@ def configure() -> FastAPI:
 
     app.include_router(users.router)
     app.include_router(students.router)
+    app.include_router(assignments.router)
 
     return app
 

@@ -10,6 +10,7 @@ from sqlalchemy import and_
 from app.models.databases import database
 from app.models.users import tokens_table, users_table
 from app.schemas import users as student_schema
+from app.schemas.users import UserID
 
 
 def get_random_string(length=12):
@@ -45,17 +46,18 @@ async def get_user_by_token(token: str):
             tokens_table.c.expires > datetime.now()
         )
     )
-    return await database.fetch_one(query)
+    user = await database.fetch_one(query)
+    if user:
+        return UserID(**dict(user))
+    return None
 
 
 async def create_user_token(user_id: int):
     """ Creates a token for the user with the specified user_id """
     token = await get_uuid4()
     query = (
-        tokens_table.insert()
-            .values(expires=datetime.now() + timedelta(weeks=2), user_id=user_id,
-                    token=token)
-            .returning(tokens_table.c.token, tokens_table.c.expires)
+        tokens_table.insert().values(expires=datetime.now() + timedelta(weeks=2), user_id=user_id, token=token)
+                             .returning(tokens_table.c.token, tokens_table.c.expires)
     )
     return await database.fetch_one(query)
 

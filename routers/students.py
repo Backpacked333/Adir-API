@@ -1,6 +1,5 @@
 import httpx as httpx
 from fastapi import APIRouter, HTTPException, Depends
-from fastapi.security import OAuth2PasswordRequestForm
 
 from app.schemas import students, users
 from app.utils import users as users_utils, students as students_utils

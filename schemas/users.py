@@ -18,6 +18,10 @@ class UserBase(BaseModel):
     password: str
 
 
+class UserID(BaseModel):
+    id: int
+
+
 class TokenBase(BaseModel):
     token: UUID4 = Field(..., alias="access_token")
     expires: datetime
