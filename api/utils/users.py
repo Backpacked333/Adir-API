@@ -7,10 +7,13 @@ from uuid import UUID
 
 from sqlalchemy import and_
 
-from app.models.databases import database
-from app.models.users import tokens_table, users_table
-from app.schemas import users as student_schema
-from app.schemas.users import UserID
+from app import settings
+from app.api.models.databases import database
+from app.api.models.users import tokens_table, users_table
+from app.api.schemas import users as users_schema
+from app.api.schemas import students as students_schema
+from app.api.schemas.users import UserBase
+from app.api.utils.students import check_student
 
 
 def get_random_string(length=12):
@@ -48,22 +51,24 @@ async def get_user_by_token(token: str):
     )
     user = await database.fetch_one(query)
     if user:
-        return UserID(**dict(user))
+        return UserBase(**dict(user))
     return None
 
 
 async def create_user_token(user_id: int):
     """ Creates a token for the user with the specified user_id """
     token = await get_uuid4()
+    expires = datetime.now() + timedelta(weeks=settings.TOKEN_LIFETIME_WEEKS)
     query = (
-        tokens_table.insert().values(expires=datetime.now() + timedelta(weeks=2), user_id=user_id, token=token)
+        tokens_table.insert().values(expires=expires, user_id=user_id, token=token)
                              .returning(tokens_table.c.token, tokens_table.c.expires)
     )
     return await database.fetch_one(query)
 
 
-async def create_user(user: student_schema.UserCreate):
+async def create_user(user: users_schema.UserCreate):
     """ Creates a new user in the database """
+    await check_student(user.external_login, user.external_password)
     salt = get_random_string()
     hashed_password = hash_password(user.password, salt)
     query = users_table.insert().values(

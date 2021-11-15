@@ -7,15 +7,15 @@ class StudentCreate(BaseModel):
     """ Check existing student account """
     login: str
     password: str
-    url: str
+    domain: str = 'https://canvas.instructure.com'
 
 
 class StudentBase(BaseModel):
     """ Build body of answer with Students details """
     id: int
     user_id: int
-    url: str
-    external_id: Optional[str]
     login: str
     password: str
-    token: Optional[str]
+    bearer_token: Optional[str]
+    domain: str
+    local_id: Optional[str]

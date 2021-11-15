@@ -2,9 +2,9 @@ from typing import List
 
 from fastapi import APIRouter, HTTPException, Depends
 
-from app.schemas import students, users, assignments
-from app.utils import assignments as assignments_utils
-from app.utils.dependencies import get_current_user
+from app.api.schemas import students, users, assignments
+from app.api.utils import assignments as assignments_utils
+from app.api.utils.dependencies import get_current_user
 
 router = APIRouter(prefix="/assignments",)
 

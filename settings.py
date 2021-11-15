@@ -1,8 +1,11 @@
 import os
+import sys
 
-import databases
-import sqlalchemy
+
 from dotenv import load_dotenv
+
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(APP_DIR))
 
 load_dotenv()
 
@@ -24,8 +27,7 @@ CORS_ORIGINS = [
     "http://localhost:8000",
 ]
 
-
-
+TOKEN_LIFETIME_WEEKS = 4
 
 
 # engine = sqlalchemy.create_engine(

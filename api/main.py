@@ -1,10 +1,9 @@
-import databases
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.models.databases import database
-from app.routers import users, students, assignments
-import settings
+from app import settings
+from models.databases import database
+from routers import users, assignments
 
 
 def configure() -> FastAPI:
@@ -27,7 +26,6 @@ def configure() -> FastAPI:
         await database.disconnect()
 
     app.include_router(users.router)
-    app.include_router(students.router)
     app.include_router(assignments.router)
 
     return app

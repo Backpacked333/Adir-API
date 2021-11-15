@@ -1,4 +1,4 @@
-from app.utils import users as users_utils
+from app.api.utils import users as users_utils
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 

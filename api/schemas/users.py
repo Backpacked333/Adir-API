@@ -9,6 +9,8 @@ class UserCreate(BaseModel):
     full_name: str
     email: EmailStr
     password: str
+    external_login: str
+    external_password: str
 
 
 class UserBase(BaseModel):
