@@ -1,7 +1,7 @@
-from app.api.models.assignments import assignments_table
-from app.api.models.databases import database
-from app.api.models.students import students_table
-from app.api.schemas import users as user_schema
+from api.models.assignments import assignments_table
+from api.models.databases import database
+from api.models.students import students_table
+from api.schemas import users as user_schema
 
 
 async def get_assignments_by_user(user: user_schema.User):

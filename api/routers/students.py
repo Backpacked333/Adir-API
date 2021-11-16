@@ -1,9 +1,7 @@
-# import httpx as httpx
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends
 
-from app.api.schemas import students, users
-from app.api.utils import users as users_utils, students as students_utils
-from app.api.utils.dependencies import get_current_user
+from api.schemas import students, users
+from api.utils.dependencies import get_current_user
 
 router = APIRouter(prefix="/students",)
 

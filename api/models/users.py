@@ -11,6 +11,7 @@ users_table = sqlalchemy.Table(
     sqlalchemy.Column("email", sqlalchemy.String(50), unique=True, index=True),
     sqlalchemy.Column("password", sqlalchemy.String(100)),
     sqlalchemy.Column("full_name", sqlalchemy.String(50)),
+    sqlalchemy.Column("last_login", sqlalchemy.DateTime()),
 )
 
 

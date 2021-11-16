@@ -28,10 +28,3 @@ CORS_ORIGINS = [
 ]
 
 TOKEN_LIFETIME_WEEKS = 4
-
-
-# engine = sqlalchemy.create_engine(
-#     SQLALCHEMY_DATABASE_URL, # connect_args={"check_same_thread": False}
-# )
-# metadata = sqlalchemy.MetaData()
-# metadata.create_all(engine)

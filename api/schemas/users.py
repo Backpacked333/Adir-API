@@ -18,6 +18,7 @@ class UserBase(BaseModel):
     id: int
     email: EmailStr
     password: str
+    last_login: datetime = datetime.utcnow()
 
 
 class UserID(BaseModel):

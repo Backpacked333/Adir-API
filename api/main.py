@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app import settings
-from models.databases import database
-from routers import users, assignments
+import settings
+
+from api.models.databases import database
+from .routers import users, assignments
 
 
 def configure() -> FastAPI:

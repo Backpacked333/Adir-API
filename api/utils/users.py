@@ -5,15 +5,19 @@ import string
 from datetime import datetime, timedelta
 from uuid import UUID
 
-from sqlalchemy import and_
+from fastapi import HTTPException
+from sqlalchemy import and_, update
+
+from api.models.databases import database
+from api.models.users import tokens_table, users_table
+from api.schemas import users as student_schema
+from api.schemas.users import UserBase
+
+from api.utils.students import check_student
 
 from app import settings
-from app.api.models.databases import database
-from app.api.models.users import tokens_table, users_table
-from app.api.schemas import users as users_schema
-from app.api.schemas import students as students_schema
-from app.api.schemas.users import UserBase
-from app.api.utils.students import check_student
+from api.schemas.students import StudentCreate
+from api.utils.students import create_student
 
 
 def get_random_string(length=12):
@@ -51,6 +55,8 @@ async def get_user_by_token(token: str):
     )
     user = await database.fetch_one(query)
     if user:
+        update_query = update(users_table).values(last_login=datetime.utcnow()).where(users_table.c.id == user['user_id'])
+        await database.execute(update_query)
         return UserBase(**dict(user))
     return None
 
@@ -66,19 +72,26 @@ async def create_user_token(user_id: int):
     return await database.fetch_one(query)
 
 
-async def create_user(user: users_schema.UserCreate):
+async def create_user(user: student_schema.UserCreate):
     """ Creates a new user in the database """
-    await check_student(user.external_login, user.external_password)
+    student = StudentCreate(login=user.external_login, password=user.external_password)
+    is_account_exist = await check_student(student)
+    if not is_account_exist:
+        raise HTTPException(status_code=400, detail="Canvas account doesn't exist")
+
     salt = get_random_string()
     hashed_password = hash_password(user.password, salt)
     query = users_table.insert().values(
-        email=user.email, full_name=user.full_name, password=f"{salt}${hashed_password}"
+        email=user.email, full_name=user.full_name, password=f"{salt}${hashed_password}",
+        last_login=datetime.utcnow()
     )
     user_id = await database.execute(query)
     token = await create_user_token(user_id)
     token_dict = {"token": token["token"], "expires": token["expires"]}
 
-    return {**user.dict(), "id": user_id, "is_active": True, "token": token_dict}
+    student_id = await create_student(student=student, user_id=user_id)
+
+    return {**user.dict(), "id": user_id, "student_id": student_id, "token": token_dict}
 
 
 # async def get_token_data(token_id):
