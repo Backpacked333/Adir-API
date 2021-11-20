@@ -1,4 +1,4 @@
-from api.models.assignments import assignments_table
+from api.models.assignments import assignments_table, questions_table
 from api.models.databases import database
 from api.models.students import students_table
 from api.schemas import users as user_schema
@@ -15,3 +15,8 @@ async def get_assignments_by_user(user: user_schema.User):
 async def get_assignments_details(assignment_id: int):
     query = assignments_table.select().where(assignments_table.c.id == assignment_id)
     return await database.fetch_one(query)
+
+
+async def get_assignments_questions(assignment_id: int):
+    query = questions_table.select().where(questions_table.c.assignment_id == assignment_id).order_by('id')
+    return await database.fetch_all(query)

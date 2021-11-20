@@ -39,3 +39,20 @@ courses_table = sqlalchemy.Table(
     sqlalchemy.Column("workflow_state", sqlalchemy.String(50)),
     sqlalchemy.Column("enrolled_as", sqlalchemy.String(50))
 )
+
+
+questions_table = sqlalchemy.Table(
+    "questions",
+    metadata,
+    sqlalchemy.Column("assignment_id", sqlalchemy.Integer),
+    sqlalchemy.Column("id", sqlalchemy.String(12), index=True),
+    sqlalchemy.Column("student_id", sqlalchemy.ForeignKey("student.id")),
+    sqlalchemy.Column("name", sqlalchemy.String(50)),
+    sqlalchemy.Column("points", sqlalchemy.Integer),
+    sqlalchemy.Column("type", sqlalchemy.String(25)),
+    sqlalchemy.Column("text", sqlalchemy.Text()),
+    sqlalchemy.Column("answer_0", sqlalchemy.String(50)),
+    sqlalchemy.Column("answer_1", sqlalchemy.String(50)),
+    sqlalchemy.Column("answer_2", sqlalchemy.String(50)),
+    sqlalchemy.Column("answer_3", sqlalchemy.String(50)),
+)

@@ -37,3 +37,17 @@ class CourseBase(BaseModel):
     course_code: Optional[str]
     workflow_state: Optional[str]
     enrolled_as: Optional[str]
+
+
+class QuestionsBase(BaseModel):
+    assignment_id: int
+    id: str
+    student_id: int
+    name: Optional[str]
+    points: Optional[int]
+    type: Optional[str]
+    text: Optional[str]
+    answer_0: Optional[str]
+    answer_1: Optional[str]
+    answer_2: Optional[str]
+    answer_3: Optional[str]
