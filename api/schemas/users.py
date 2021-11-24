@@ -15,10 +15,10 @@ class UserCreate(BaseModel):
 
 class UserBase(BaseModel):
     """ Build body of answer with User details """
-    id: int
+    user_id: int
     email: EmailStr
-    password: str
-    last_login: datetime = datetime.utcnow()
+    full_name: str
+    last_login: datetime = None
 
 
 class UserID(BaseModel):
