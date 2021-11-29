@@ -25,6 +25,26 @@ class AssignmentBase(BaseModel):
     locked: Optional[str]
 
 
+class QuizzesBase(BaseModel):
+    ind_db: int
+    student_id: int
+    id: str
+    description: Optional[str]
+    due_at: Optional[datetime]
+    points_possible: Optional[str]
+    grading_type: Optional[str]
+    allowed_attempts: Optional[str]
+    course_id: Optional[int]
+    name: Optional[str]
+    submission_types: Optional[str]
+    has_submitted_submissions: Optional[str]
+    due_date_required: Optional[datetime]
+    workflow_state: Optional[str]
+    html_url: Optional[str]
+    quiz_id: Optional[str]
+    locked: Optional[str]
+
+
 class CourseBase(BaseModel):
     """ Build body of answer with Course details """
     id_db: int
@@ -51,3 +71,17 @@ class QuestionsBase(BaseModel):
     answer_1: Optional[str]
     answer_2: Optional[str]
     answer_3: Optional[str]
+
+
+class GradesBase(BaseModel):
+    id_db: int
+    student_id: int
+    course_id: str
+    assignment_id: str
+    name: Optional[str]
+    link: Optional[str]
+    status: Optional[str]
+    score: Optional[datetime]
+    grade: Optional[str]
+    out_of: Optional[str]
+    due: Optional[str]
