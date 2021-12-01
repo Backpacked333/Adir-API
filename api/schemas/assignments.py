@@ -67,10 +67,7 @@ class QuestionsBase(BaseModel):
     points: Optional[int]
     type: Optional[str]
     text: Optional[str]
-    answer_0: Optional[str]
-    answer_1: Optional[str]
-    answer_2: Optional[str]
-    answer_3: Optional[str]
+    answers: Optional[str]
 
 
 class GradesBase(BaseModel):
