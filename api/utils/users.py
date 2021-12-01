@@ -91,7 +91,7 @@ async def create_user(user: student_schema.UserCreate):
 
     student_id = await create_student(student=student, user_id=user_id)
 
-    return {**user.dict(), "id": user_id, "student_id": student_id, "token": token_dict}
+    return {**user.dict(), "user_id": user_id, "student_id": student_id, "token": token_dict}
 
 
 # async def get_token_data(token_id):

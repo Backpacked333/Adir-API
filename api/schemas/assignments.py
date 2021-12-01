@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 class AssignmentBase(BaseModel):
     """ Build body of answer with Assignment details """
-    ind_db: int
+    int_db: int
     student_id: int
     id: str
     description: Optional[str]
@@ -18,7 +18,7 @@ class AssignmentBase(BaseModel):
     name: Optional[str]
     submission_types: Optional[str]
     has_submitted_submissions: Optional[str]
-    due_date_required: Optional[datetime]
+    due_date_required: Optional[str]
     workflow_state: Optional[str]
     html_url: Optional[str]
     quiz_id: Optional[str]
@@ -26,7 +26,7 @@ class AssignmentBase(BaseModel):
 
 
 class QuizzesBase(BaseModel):
-    ind_db: int
+    int_db: int
     student_id: int
     id: str
     description: Optional[str]
@@ -38,7 +38,7 @@ class QuizzesBase(BaseModel):
     name: Optional[str]
     submission_types: Optional[str]
     has_submitted_submissions: Optional[str]
-    due_date_required: Optional[datetime]
+    due_date_required: Optional[str]
     workflow_state: Optional[str]
     html_url: Optional[str]
     quiz_id: Optional[str]
@@ -60,7 +60,7 @@ class CourseBase(BaseModel):
 
 
 class QuestionsBase(BaseModel):
-    assignment_id: int
+    quiz_id: int
     id: str
     student_id: int
     name: Optional[str]

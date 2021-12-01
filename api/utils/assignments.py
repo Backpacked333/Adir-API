@@ -13,13 +13,8 @@ async def get_assignments_by_user(user: user_schema.User):
 
 
 async def get_assignments_details(assignment_id: int):
-    query = assignments_table.select().where(assignments_table.c.ind_db == assignment_id)
+    query = assignments_table.select().where(assignments_table.c.int_db == assignment_id)
     return await database.fetch_one(query)
-
-
-async def get_assignments_questions(assignment_id: int):
-    query = questions_table.select().where(questions_table.c.assignment_id == assignment_id).order_by('id')
-    return await database.fetch_all(query)
 
 
 async def get_quizzes_by_user(user: user_schema.User):
@@ -30,11 +25,11 @@ async def get_quizzes_by_user(user: user_schema.User):
     return await database.fetch_all(query)
 
 
-async def get_quizzes_details(assignment_id: int):
-    query = quizzes_table.select().where(assignments_table.c.ind_db == assignment_id)
+async def get_quizzes_details(quiz_id: int):
+    query = quizzes_table.select().where(quizzes_table.c.int_db == quiz_id)
     return await database.fetch_one(query)
 
 
-async def get_quizzes_questions(assignment_id: int):
-    query = questions_table.select().where(questions_table.c.assignment_id == assignment_id).order_by('id')
+async def get_quizzes_questions(quiz_id: int):
+    query = questions_table.select().where(questions_table.c.quiz_id == quiz_id).order_by('id')
     return await database.fetch_all(query)
