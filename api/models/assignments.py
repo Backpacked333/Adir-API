@@ -92,3 +92,16 @@ grades_table = sqlalchemy.Table(
     sqlalchemy.Column("out_of", sqlalchemy.String(5)),
     sqlalchemy.Column("due", sqlalchemy.String(50)),
 )
+
+
+quiz_answers_table = sqlalchemy.Table(
+    "quiz_answers",
+    metadata,
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("question_id", sqlalchemy.String(15)),
+    sqlalchemy.Column("quiz_id", sqlalchemy.String(50)),
+    sqlalchemy.Column("student_id", sqlalchemy.ForeignKey("student.id")),
+
+    sqlalchemy.Column("file_id", sqlalchemy.String(50)),
+    sqlalchemy.Column("answer", sqlalchemy.Text),
+)

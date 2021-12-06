@@ -1,4 +1,4 @@
-from api.models.assignments import assignments_table, questions_table, quizzes_table
+from api.models.assignments import assignments_table, questions_table, quizzes_table, quiz_answers_table
 from api.models.databases import database
 from api.models.students import students_table
 from api.schemas import users as user_schema
@@ -33,3 +33,14 @@ async def get_quizzes_details(quiz_id: int):
 async def get_quizzes_questions(quiz_id: int):
     query = questions_table.select().where(questions_table.c.quiz_id == quiz_id).order_by('id')
     return await database.fetch_all(query)
+
+
+async def create_quiz_answer(answer, student_id):
+    query = quiz_answers_table.insert().values(
+        student_id=student_id,
+        question_id=answer.question_id,
+        quiz_id=answer.quiz_id,
+        file_id=answer.file_id,
+        answer=answer.answer
+    )
+    return await database.execute(query)

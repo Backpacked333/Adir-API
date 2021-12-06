@@ -22,6 +22,11 @@ async def check_student(student: student_schema.StudentCreate):
     return await login_account(student.login, student.password)
 
 
+async def get_student(user_id: int):
+    query = students_table.select().where(students_table.c.user_id == user_id)
+    return await database.fetch_one(query)
+
+
 async def login_account(login: str, password: str):
 
     async with httpx.AsyncClient() as client:

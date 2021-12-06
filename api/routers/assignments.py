@@ -5,6 +5,8 @@ from fastapi import APIRouter, Depends
 from api.schemas import students, users, assignments
 from api.utils import assignments as assignments_utils
 from api.utils.dependencies import get_current_user
+from api.utils.students import get_student
+from api.schemas.assignments import QuizAnswerCreate
 
 from app import settings
 
@@ -26,6 +28,15 @@ async def quizzes_questions(quiz_id: str, skip: int = 0, limit: int = settings.Q
                             user: users.User = Depends(get_current_user)):
     records = await assignments_utils.get_quizzes_questions(quiz_id=quiz_id)
     return {"total": len(records), "questions": records[skip:skip+limit]}
+
+
+@router.post("/quizzes/answer")
+async def submit_quiz_answers(quiz_answer: QuizAnswerCreate, user: users.User = Depends(get_current_user)):
+    student = await get_student(user.user_id)
+    result = await assignments_utils.create_quiz_answer(answer=quiz_answer, student_id=student['id'])
+    if result:
+        return {'status': 'ok'}
+    return {'status': 'error', 'message': result}
 
 
 @router.get("/quizzes/{quiz_id}", response_model=assignments.QuizzesBase)

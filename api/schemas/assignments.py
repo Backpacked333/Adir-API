@@ -82,3 +82,19 @@ class GradesBase(BaseModel):
     grade: Optional[str]
     out_of: Optional[str]
     due: Optional[str]
+
+
+class QuizAnswer(BaseModel):
+    id: int
+    question_id: str
+    answer: str
+    file_id: Optional[str]
+    quiz_id: str
+    student_id: int
+
+
+class QuizAnswerCreate(BaseModel):
+    quiz_id: str
+    question_id: str
+    answer: str
+    file_id: Optional[str]
