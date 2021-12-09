@@ -1,6 +1,6 @@
 from typing import List, Dict
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, File, UploadFile, Form
 
 from api.schemas import students, users, assignments
 from api.utils import assignments as assignments_utils
@@ -31,9 +31,14 @@ async def quizzes_questions(quiz_id: str, skip: int = 0, limit: int = settings.Q
 
 
 @router.post("/quizzes/answer")
-async def submit_quiz_answers(quiz_answer: QuizAnswerCreate, user: users.User = Depends(get_current_user)):
+async def submit_quiz_answers(answer: str = Form(...), quiz_id: str = Form(...), question_id: str = Form(...),
+                              file: UploadFile = File(...), user: users.User = Depends(get_current_user)):
     student = await get_student(user.user_id)
-    result = await assignments_utils.create_quiz_answer(answer=quiz_answer, student_id=student['id'])
+    result = await assignments_utils.create_quiz_answer(student_id=student['id'],
+                                                        answer=answer,
+                                                        quiz_id=quiz_id,
+                                                        question_id=question_id,
+                                                        file=file)
     if result:
         return {'status': 'ok'}
     return {'status': 'error', 'message': result}
