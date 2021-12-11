@@ -1,7 +1,8 @@
 import os.path
 
 import aiofiles
-from api.models.assignments import assignments_table, questions_table, quizzes_table, quiz_answers_table
+from api.models.assignments import assignments_table, questions_table, quizzes_table, quiz_answers_table, \
+    quizzes_status_table, assignments_status_table, assignment_answers_table
 from api.models.databases import database
 from api.models.students import students_table
 from api.schemas import users as user_schema
@@ -41,16 +42,35 @@ async def get_quizzes_questions(quiz_id: int):
 
 
 async def create_quiz_answer(answer, quiz_id, question_id, student_id, file):
-    file_path = await save_file(file)
+    quiz_status_query = quizzes_status_table.select().where(quizzes_status_table.c.quiz_id == quiz_id)
+    quiz_status = await database.fetch_one(quiz_status_query)
+    if quiz_status and quiz_status['status'] > 10:
+        return {'status': 'error', 'message': 'answer was added to server'}
+
+    if file:
+        answer = await save_file(file)
 
     query = quiz_answers_table.insert().values(
         student_id=student_id,
         question_id=question_id,
         quiz_id=quiz_id,
-        file_id=file_path,
         answer=answer
     )
-    return await database.execute(query)
+    result = await database.execute(query)
+    if result:
+        if not quiz_status:
+            await set_status_quiz(quiz_id, student_id)
+        return {'status': 'ok'}
+    return {'status': 'error', 'message': result}
+
+
+async def set_status_quiz(quiz_id, student_id, status=10):
+    query = quizzes_status_table.insert().values(
+        student_id=student_id,
+        status=status,
+        quiz_id=quiz_id
+    )
+    await database.execute(query)
 
 
 async def save_file(file):
@@ -60,3 +80,34 @@ async def save_file(file):
         content = await file.read()  # async read
         await out_file.write(content)  # async write
     return file_path
+
+
+async def create_assignment_answer(answer, assignment_id, student_id, file):
+    assignment_status_query = assignments_status_table.select().where(assignments_status_table.c.assignment_id == assignment_id)
+    assignment_status = await database.fetch_one(assignment_status_query)
+    if assignment_status and assignment_status['status'] > 10:
+        return {'status': 'error', 'message': 'answer was added to server'}
+
+    if file:
+        answer = await save_file(file)
+
+    query = assignment_answers_table.insert().values(
+        student_id=student_id,
+        assignment_id=assignment_id,
+        answer=answer
+    )
+    result = await database.execute(query)
+    if result:
+        if not assignment_status:
+            await set_status_assignment(assignment_id, student_id)
+        return {'status': 'ok'}
+    return {'status': 'error', 'message': result}
+
+
+async def set_status_assignment(assignment_id, student_id, status=10):
+    query = assignments_status_table.insert().values(
+        student_id=student_id,
+        status=status,
+        assignment_id=assignment_id
+    )
+    await database.execute(query)

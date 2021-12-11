@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from fastapi import APIRouter, Depends, File, UploadFile, Form
 
@@ -31,17 +31,29 @@ async def quizzes_questions(quiz_id: str, skip: int = 0, limit: int = settings.Q
 
 
 @router.post("/quizzes/answer")
-async def submit_quiz_answers(answer: str = Form(...), quiz_id: str = Form(...), question_id: str = Form(...),
-                              file: UploadFile = File(...), user: users.User = Depends(get_current_user)):
+async def submit_quiz_answer(answer: Optional[str] = Form(...),
+                              quiz_id: str = Form(...),
+                              question_id: str = Form(...),
+                              file: Optional[UploadFile] = File(None),
+                              user: users.User = Depends(get_current_user)):
     student = await get_student(user.user_id)
-    result = await assignments_utils.create_quiz_answer(student_id=student['id'],
-                                                        answer=answer,
-                                                        quiz_id=quiz_id,
-                                                        question_id=question_id,
-                                                        file=file)
-    if result:
-        return {'status': 'ok'}
-    return {'status': 'error', 'message': result}
+    return await assignments_utils.create_quiz_answer(student_id=student['id'],
+                                                      answer=answer,
+                                                      quiz_id=quiz_id,
+                                                      question_id=question_id,
+                                                      file=file)
+
+
+@router.post("/answer")
+async def submit_assignment_answer(answer: Optional[str] = Form(...),
+                                   assignment_id: str = Form(...),
+                                   file: Optional[UploadFile] = File(None),
+                                   user: users.User = Depends(get_current_user)):
+    student = await get_student(user.user_id)
+    return await assignments_utils.create_assignment_answer(student_id=student['id'],
+                                                            answer=answer,
+                                                            assignment_id=assignment_id,
+                                                            file=file)
 
 
 @router.get("/quizzes/{quiz_id}", response_model=assignments.QuizzesBase)

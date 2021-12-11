@@ -105,3 +105,36 @@ quiz_answers_table = sqlalchemy.Table(
     sqlalchemy.Column("file_id", sqlalchemy.String(50)),
     sqlalchemy.Column("answer", sqlalchemy.Text),
 )
+
+
+quizzes_status_table = sqlalchemy.Table(
+    "quizzes_status",
+    metadata,
+    sqlalchemy.Column("ind_db", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("status", sqlalchemy.Integer),
+    sqlalchemy.Column("quiz_id", sqlalchemy.String(50)),
+    sqlalchemy.Column("student_id", sqlalchemy.ForeignKey("student.id")),
+)
+
+
+assignment_answers_table = sqlalchemy.Table(
+    "assignment_answers",
+    metadata,
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("student_id", sqlalchemy.ForeignKey("student.id")),
+    sqlalchemy.Column("assignment_id", sqlalchemy.String(50)),
+
+    sqlalchemy.Column("file_id", sqlalchemy.String(50)),
+    sqlalchemy.Column("answer", sqlalchemy.Text),
+    sqlalchemy.Column("comment", sqlalchemy.String(250)),
+)
+
+
+assignments_status_table = sqlalchemy.Table(
+    "assignments_status",
+    metadata,
+    sqlalchemy.Column("ind_db", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("status", sqlalchemy.Integer),
+    sqlalchemy.Column("assignment_id", sqlalchemy.String(50)),
+    sqlalchemy.Column("student_id", sqlalchemy.ForeignKey("student.id")),
+)
