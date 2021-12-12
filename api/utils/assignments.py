@@ -50,18 +50,33 @@ async def create_quiz_answer(answer, quiz_id, question_id, student_id, file):
     if file:
         answer = await save_file(file)
 
-    query = quiz_answers_table.insert().values(
-        student_id=student_id,
-        question_id=question_id,
-        quiz_id=quiz_id,
-        answer=answer
-    )
-    result = await database.execute(query)
+    result = await create_update_quiz(answer, question_id, quiz_id, student_id)
     if result:
         if not quiz_status:
             await set_status_quiz(quiz_id, student_id)
         return {'status': 'ok'}
     return {'status': 'error', 'message': result}
+
+
+async def create_update_quiz(answer, question_id, quiz_id, student_id):
+    quiz_answer_query = quiz_answers_table.select().where(quiz_answers_table.c.student_id == student_id,
+                                                          quiz_answers_table.c.question_id == question_id,
+                                                          quiz_answers_table.c.quiz_id == quiz_id)
+    quiz_answer = await database.fetch_one(quiz_answer_query)
+
+    if not quiz_answer:
+        query = quiz_answers_table.insert().values(
+            student_id=student_id,
+            question_id=question_id,
+            quiz_id=quiz_id,
+            answer=answer
+        )
+        return await database.execute(query)
+    else:
+        query = quiz_answers_table.update().values(
+            answer=answer
+        ).where(quiz_answers_table.c.id == quiz_answer['id']).returning(quiz_answers_table.c.id)
+        return await database.execute(query)
 
 
 async def set_status_quiz(quiz_id, student_id, status=10):
@@ -83,7 +98,8 @@ async def save_file(file):
 
 
 async def create_assignment_answer(answer, assignment_id, student_id, file):
-    assignment_status_query = assignments_status_table.select().where(assignments_status_table.c.assignment_id == assignment_id)
+    assignment_status_query = assignments_status_table.select() \
+                                    .where(assignments_status_table.c.assignment_id == assignment_id)
     assignment_status = await database.fetch_one(assignment_status_query)
     if assignment_status and assignment_status['status'] > 10:
         return {'status': 'error', 'message': 'answer was added to server'}
@@ -91,12 +107,7 @@ async def create_assignment_answer(answer, assignment_id, student_id, file):
     if file:
         answer = await save_file(file)
 
-    query = assignment_answers_table.insert().values(
-        student_id=student_id,
-        assignment_id=assignment_id,
-        answer=answer
-    )
-    result = await database.execute(query)
+    result = await create_update_assignments_answer(answer, assignment_id, student_id)
     if result:
         if not assignment_status:
             await set_status_assignment(assignment_id, student_id)
@@ -111,3 +122,23 @@ async def set_status_assignment(assignment_id, student_id, status=10):
         assignment_id=assignment_id
     )
     await database.execute(query)
+
+
+async def create_update_assignments_answer(answer, assignment_id, student_id):
+    assignment_answer_query = assignment_answers_table.select() \
+                                                      .where(assignment_answers_table.c.student_id == student_id,
+                                                             assignment_answers_table.c.assignment_id == assignment_id)
+    assignment_answer = await database.fetch_one(assignment_answer_query)
+
+    if not assignment_answer:
+        query = assignment_answers_table.insert().values(
+            student_id=student_id,
+            assignment_id=assignment_id,
+            answer=answer
+        )
+        return await database.execute(query)
+    else:
+        query = assignment_answers_table.update().values(
+            answer=answer
+        ).where(assignment_answers_table.c.id == assignment_answer['id']).returning(assignment_answers_table.c.id)
+        return await database.execute(query)
