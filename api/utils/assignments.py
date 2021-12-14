@@ -25,9 +25,8 @@ async def get_assignments_details(assignment_id: int):
 
 async def get_quizzes_by_user(user: user_schema.User):
     query = students_table.select().where(students_table.c.user_id == user.user_id)
-    students = await database.fetch_all(query)
-    students_ids = [student['id'] for student in students]
-    query = quizzes_table.select().where(assignments_table.c.student_id.in_(students_ids))
+    student = await database.fetch_one(query)
+    query = quizzes_table.select().where(quizzes_table.c.student_id == student['id'])
     return await database.fetch_all(query)
 
 
@@ -36,8 +35,9 @@ async def get_quizzes_details(quiz_id: int):
     return await database.fetch_one(query)
 
 
-async def get_quizzes_questions(quiz_id: int):
-    query = questions_table.select().where(questions_table.c.quiz_id == quiz_id).order_by('id')
+async def get_quizzes_questions(quiz_id: int, student_id: int):
+    query = questions_table.select().where(questions_table.c.quiz_id == quiz_id,
+                                           questions_table.c.student_id == student_id).order_by('id')
     return await database.fetch_all(query)
 
 

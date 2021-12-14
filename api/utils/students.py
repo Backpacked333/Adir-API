@@ -6,7 +6,7 @@ from api.models.students import students_table
 from api.schemas import students as student_schema
 
 
-STUDENT_DOMAIN = 'https://unlv.instructure.com/login/canvas'
+STUDENT_DOMAIN = 'https://canvas.instructure.com/login/canvas'
 
 
 async def create_student(student: student_schema.StudentCreate, user_id: int):

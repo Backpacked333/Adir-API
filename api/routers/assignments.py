@@ -26,16 +26,17 @@ async def get_quizzes(user: users.User = Depends(get_current_user)):
 @router.get("/quizzes/{quiz_id}/questions")
 async def quizzes_questions(quiz_id: str, skip: int = 0, limit: int = settings.QUESTION_PAGINATION_SIZE,
                             user: users.User = Depends(get_current_user)):
-    records = await assignments_utils.get_quizzes_questions(quiz_id=quiz_id)
+    student = await get_student(user.user_id)
+    records = await assignments_utils.get_quizzes_questions(quiz_id=quiz_id, student_id=student['id'])
     return {"total": len(records), "questions": records[skip:skip+limit]}
 
 
 @router.post("/quizzes/answer")
 async def submit_quiz_answer(answer: Optional[str] = Form(...),
-                              quiz_id: str = Form(...),
-                              question_id: str = Form(...),
-                              file: Optional[UploadFile] = File(None),
-                              user: users.User = Depends(get_current_user)):
+                             quiz_id: str = Form(...),
+                             question_id: str = Form(...),
+                             file: Optional[UploadFile] = File(None),
+                             user: users.User = Depends(get_current_user)):
     student = await get_student(user.user_id)
     return await assignments_utils.create_quiz_answer(student_id=student['id'],
                                                       answer=answer,
