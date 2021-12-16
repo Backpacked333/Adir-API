@@ -27,12 +27,14 @@ async def get_quizzes(user: users.User = Depends(get_current_user)):
 async def quizzes_questions(quiz_id: str, skip: int = 0, limit: int = settings.QUESTION_PAGINATION_SIZE,
                             user: users.User = Depends(get_current_user)):
     student = await get_student(user.user_id)
+    if not student:
+        return {"status": "error", "message": "Student didn't find"}
     records = await assignments_utils.get_quizzes_questions(quiz_id=quiz_id, student_id=student['id'])
     return {"total": len(records), "questions": records[skip:skip+limit]}
 
 
 @router.post("/quizzes/answer")
-async def submit_quiz_answer(answer: Optional[str] = Form(...),
+async def submit_quiz_answer(answer: Optional[str] = Form(None),
                              quiz_id: str = Form(...),
                              question_id: str = Form(...),
                              file: Optional[UploadFile] = File(None),
@@ -46,13 +48,11 @@ async def submit_quiz_answer(answer: Optional[str] = Form(...),
 
 
 @router.post("/answer")
-async def submit_assignment_answer(answer: Optional[str] = Form(...),
-                                   assignment_id: str = Form(...),
-                                   file: Optional[UploadFile] = File(None),
+async def submit_assignment_answer(assignment_id: str = Form(...),
+                                   file: Optional[UploadFile] = File(...),
                                    user: users.User = Depends(get_current_user)):
     student = await get_student(user.user_id)
     return await assignments_utils.create_assignment_answer(student_id=student['id'],
-                                                            answer=answer,
                                                             assignment_id=assignment_id,
                                                             file=file)
 

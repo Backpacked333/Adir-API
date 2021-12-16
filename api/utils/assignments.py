@@ -97,17 +97,16 @@ async def save_file(file):
     return file_path
 
 
-async def create_assignment_answer(answer, assignment_id, student_id, file):
+async def create_assignment_answer(assignment_id, student_id, file):
     assignment_status_query = assignments_status_table.select() \
                                     .where(assignments_status_table.c.assignment_id == assignment_id)
     assignment_status = await database.fetch_one(assignment_status_query)
     if assignment_status and assignment_status['status'] > 10:
         return {'status': 'error', 'message': 'answer was added to server'}
 
-    if file:
-        answer = await save_file(file)
+    file_path = await save_file(file)
 
-    result = await create_update_assignments_answer(answer, assignment_id, student_id)
+    result = await create_update_assignments_answer(file_path, assignment_id, student_id)
     if result:
         if not assignment_status:
             await set_status_assignment(assignment_id, student_id)
@@ -124,7 +123,7 @@ async def set_status_assignment(assignment_id, student_id, status=10):
     await database.execute(query)
 
 
-async def create_update_assignments_answer(answer, assignment_id, student_id):
+async def create_update_assignments_answer(file_path, assignment_id, student_id):
     assignment_answer_query = assignment_answers_table.select() \
                                                       .where(assignment_answers_table.c.student_id == student_id,
                                                              assignment_answers_table.c.assignment_id == assignment_id)
@@ -134,11 +133,11 @@ async def create_update_assignments_answer(answer, assignment_id, student_id):
         query = assignment_answers_table.insert().values(
             student_id=student_id,
             assignment_id=assignment_id,
-            answer=answer
+            answer=file_path
         )
         return await database.execute(query)
     else:
         query = assignment_answers_table.update().values(
-            answer=answer
+            answer=file_path
         ).where(assignment_answers_table.c.id == assignment_answer['id']).returning(assignment_answers_table.c.id)
         return await database.execute(query)
