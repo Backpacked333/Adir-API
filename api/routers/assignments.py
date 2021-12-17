@@ -34,17 +34,13 @@ async def quizzes_questions(quiz_id: str, skip: int = 0, limit: int = settings.Q
 
 
 @router.post("/quizzes/answer")
-async def submit_quiz_answer(answer: Optional[str] = Form(None),
+async def submit_quiz_answer(answers: list,
                              quiz_id: str = Form(...),
-                             question_id: str = Form(...),
-                             file: Optional[UploadFile] = File(None),
                              user: users.User = Depends(get_current_user)):
     student = await get_student(user.user_id)
-    return await assignments_utils.create_quiz_answer(student_id=student['id'],
-                                                      answer=answer,
-                                                      quiz_id=quiz_id,
-                                                      question_id=question_id,
-                                                      file=file)
+    return await assignments_utils.create_quiz_answers(student_id=student['id'],
+                                                       answers=answers,
+                                                       quiz_id=quiz_id)
 
 
 @router.post("/answer")

@@ -41,7 +41,7 @@ async def get_quizzes_questions(quiz_id: int, student_id: int):
     return await database.fetch_all(query)
 
 
-async def create_quiz_answer(answer, quiz_id, question_id, student_id, file):
+async def create_quiz_answers(answers, quiz_id, student_id, file):
     quiz_status_query = quizzes_status_table.select().where(quizzes_status_table.c.quiz_id == quiz_id)
     quiz_status = await database.fetch_one(quiz_status_query)
     if quiz_status and quiz_status['status'] > 10:
@@ -50,7 +50,7 @@ async def create_quiz_answer(answer, quiz_id, question_id, student_id, file):
     if file:
         answer = await save_file(file)
 
-    result = await create_update_quiz(answer, question_id, quiz_id, student_id)
+    result = await create_update_quiz_answers(answers, quiz_id, student_id)
     if result:
         if not quiz_status:
             await set_status_quiz(quiz_id, student_id)
@@ -58,7 +58,7 @@ async def create_quiz_answer(answer, quiz_id, question_id, student_id, file):
     return {'status': 'error', 'message': result}
 
 
-async def create_update_quiz(answer, question_id, quiz_id, student_id):
+async def create_update_quiz_answers(answers, question_id, quiz_id, student_id):
     quiz_answer_query = quiz_answers_table.select().where(quiz_answers_table.c.student_id == student_id,
                                                           quiz_answers_table.c.question_id == question_id,
                                                           quiz_answers_table.c.quiz_id == quiz_id)
