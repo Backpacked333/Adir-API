@@ -93,6 +93,11 @@ class QuizAnswer(BaseModel):
     student_id: int
 
 
+class QuizAnswers(BaseModel):
+    quiz_id: str
+    answers: list
+
+
 class QuizAnswerCreate(BaseModel):
     quiz_id: str
     question_id: str

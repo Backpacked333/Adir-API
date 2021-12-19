@@ -1,3 +1,5 @@
+import base64
+import json
 import os.path
 
 import aiofiles
@@ -41,16 +43,14 @@ async def get_quizzes_questions(quiz_id: int, student_id: int):
     return await database.fetch_all(query)
 
 
-async def create_quiz_answers(answers, quiz_id, student_id, file):
+async def create_quiz_answers(quiz_answers, student_id):
+    quiz_id = quiz_answers.quiz_id
     quiz_status_query = quizzes_status_table.select().where(quizzes_status_table.c.quiz_id == quiz_id)
     quiz_status = await database.fetch_one(quiz_status_query)
     if quiz_status and quiz_status['status'] > 10:
         return {'status': 'error', 'message': 'answer was added to server'}
 
-    if file:
-        answer = await save_file(file)
-
-    result = await create_update_quiz_answers(answers, quiz_id, student_id)
+    result = await create_update_quiz_answers(quiz_answers.answers, quiz_id, student_id)
     if result:
         if not quiz_status:
             await set_status_quiz(quiz_id, student_id)
@@ -58,25 +58,35 @@ async def create_quiz_answers(answers, quiz_id, student_id, file):
     return {'status': 'error', 'message': result}
 
 
-async def create_update_quiz_answers(answers, question_id, quiz_id, student_id):
-    quiz_answer_query = quiz_answers_table.select().where(quiz_answers_table.c.student_id == student_id,
-                                                          quiz_answers_table.c.question_id == question_id,
-                                                          quiz_answers_table.c.quiz_id == quiz_id)
-    quiz_answer = await database.fetch_one(quiz_answer_query)
+async def create_update_quiz_answers(answers, quiz_id, student_id):
+    for answer_data in answers:
+        question_id = str(answer_data['question_id'])
+        answer = answer_data.get('answer')
+        if not answer:
+            answer = await get_file(question_id, answer_data.get('file'))
 
-    if not quiz_answer:
-        query = quiz_answers_table.insert().values(
-            student_id=student_id,
-            question_id=question_id,
-            quiz_id=quiz_id,
-            answer=answer
-        )
-        return await database.execute(query)
-    else:
-        query = quiz_answers_table.update().values(
-            answer=answer
-        ).where(quiz_answers_table.c.id == quiz_answer['id']).returning(quiz_answers_table.c.id)
-        return await database.execute(query)
+        quiz_answer_query = quiz_answers_table.select() \
+            .where(quiz_answers_table.c.student_id == student_id,
+                   quiz_answers_table.c.question_id == question_id,
+                   quiz_answers_table.c.quiz_id == quiz_id)
+
+        quiz_answer = await database.fetch_one(quiz_answer_query)
+
+        if not quiz_answer:
+            query = quiz_answers_table.insert().values(
+                student_id=student_id,
+                question_id=question_id,
+                quiz_id=quiz_id,
+                answer=answer
+            )
+            await database.execute(query)
+        else:
+            query = quiz_answers_table.update().values(
+                answer=answer
+            ).where(quiz_answers_table.c.id == quiz_answer['id']).returning(quiz_answers_table.c.id)
+            await database.execute(query)
+
+    return True
 
 
 async def set_status_quiz(quiz_id, student_id, status=10):
@@ -86,6 +96,18 @@ async def set_status_quiz(quiz_id, student_id, status=10):
         quiz_id=quiz_id
     )
     await database.execute(query)
+
+
+async def get_file(question_id, file_data):
+    file_name = f"file_question_{question_id}.{file_data['ext']}"
+    file_path = os.path.join(settings.FILE_ANSWERS_PATH, file_name)
+    os.makedirs(settings.FILE_ANSWERS_PATH, exist_ok=True)
+
+    base64_img_bytes = file_data['content'].encode('utf-8')
+    with open(file_path, 'wb') as file_to_save:
+        decoded_image_data = base64.decodebytes(base64_img_bytes)
+        file_to_save.write(decoded_image_data)
+    return file_path
 
 
 async def save_file(file):

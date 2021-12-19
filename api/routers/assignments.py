@@ -9,6 +9,7 @@ from api.utils.students import get_student
 from api.schemas.assignments import QuizAnswerCreate
 
 from app import settings
+from app.api.schemas.assignments import QuizAnswers
 
 router = APIRouter(prefix="/assignments",)
 
@@ -34,13 +35,11 @@ async def quizzes_questions(quiz_id: str, skip: int = 0, limit: int = settings.Q
 
 
 @router.post("/quizzes/answer")
-async def submit_quiz_answer(answers: list,
-                             quiz_id: str = Form(...),
+async def submit_quiz_answer(quiz_answers: QuizAnswers,
                              user: users.User = Depends(get_current_user)):
     student = await get_student(user.user_id)
     return await assignments_utils.create_quiz_answers(student_id=student['id'],
-                                                       answers=answers,
-                                                       quiz_id=quiz_id)
+                                                       quiz_answers=quiz_answers)
 
 
 @router.post("/answer")
