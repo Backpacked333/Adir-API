@@ -11,6 +11,6 @@ comments_table = sqlalchemy.Table(
     sqlalchemy.Column("student_id", sqlalchemy.String(50)),
     sqlalchemy.Column("content", sqlalchemy.Text),
     sqlalchemy.Column("created_at", sqlalchemy.DateTime()),
-    sqlalchemy.Column("assigment_answer_id", sqlalchemy.String(100)),
-    sqlalchemy.Column("quiz_answer_id", sqlalchemy.String(50)),
+    sqlalchemy.Column("assigment_id", sqlalchemy.String(100)),
+    sqlalchemy.Column("quiz_question_id", sqlalchemy.String(50)),
 )

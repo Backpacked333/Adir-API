@@ -5,6 +5,6 @@ from pydantic import UUID4, BaseModel, EmailStr, Field, validator
 
 
 class CommentCreate(BaseModel):
-    assigment_answer_id: Optional[int] = None
-    quiz_answer_id: Optional[int] = None
+    assigment_id: Optional[int] = None
+    quiz_question_id: Optional[int] = None
     content: str
