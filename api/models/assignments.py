@@ -74,6 +74,7 @@ questions_table = sqlalchemy.Table(
     sqlalchemy.Column("type", sqlalchemy.String(25)),
     sqlalchemy.Column("text", sqlalchemy.Text()),
     sqlalchemy.Column("answers", sqlalchemy.Text),
+    sqlalchemy.Column("int_db", sqlalchemy.Integer, primary_key=True),
 )
 
 
