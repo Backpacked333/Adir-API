@@ -26,9 +26,24 @@ async def get_assignments_details(assignment_id: int):
 
 
 async def get_quizzes_by_user(user: user_schema.User):
-    query = students_table.select().where(students_table.c.user_id == user.user_id)
+    query = students_table.select()\
+        .where(students_table.c.user_id == user.user_id)
     student = await database.fetch_one(query)
-    query = quizzes_table.select().where(quizzes_table.c.student_id == student['id'])
+    # query = quizzes_table.select().where(quizzes_table.c.student_id == student['id'])
+
+    questions_query = """SELECT DISTINCT(quiz_id) FROM questions
+                            WHERE student_id = '{0}'""".format(student['id'])
+
+    quizzes = await database.fetch_all(questions_query)
+    quiz_questions = [quiz[0] for quiz in quizzes]
+    quiz_param = f"IN {tuple(quiz_questions)}" if len(quiz_questions) > 1 else f"= '{quiz_questions[0]}'"
+
+    query = """SELECT * 
+               FROM quizzes q
+               LEFT JOIN quizzes_status st on st.quiz_id = q.quiz_id
+               WHERE st.status IS NULL 
+               AND q.quiz_id {0}
+               AND q.student_id = '{1}'""".format(quiz_param, student['id'])
     return await database.fetch_all(query)
 
 
