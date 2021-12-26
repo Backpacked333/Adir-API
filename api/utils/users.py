@@ -4,6 +4,8 @@ import random
 import string
 from datetime import datetime, timedelta
 from uuid import UUID
+from google.oauth2 import id_token
+from google.auth.transport import requests
 
 from fastapi import HTTPException
 from sqlalchemy import and_, update
@@ -94,6 +96,25 @@ async def create_user(user: student_schema.UserCreate):
     return {**user.dict(), "user_id": user_id, "student_id": student_id, "token": token_dict}
 
 
+async def create_user_google(user: student_schema.UserCreateGoogle):
+    """ Creates a new user in the database """
+    student = StudentCreate(login=user.external_login, password=user.external_password)
+    is_account_exist = await check_student(student)
+    if not is_account_exist:
+        raise HTTPException(status_code=400, detail="Canvas account doesn't exist")
+
+    query = users_table.insert().values(
+        email=user.email,
+        last_login=datetime.utcnow()
+    )
+    user_id = await database.execute(query)
+    token = await create_user_token(user_id)
+    token_dict = {"token": token["token"], "expires": token["expires"]}
+
+    student_id = await create_student(student=student, user_id=user_id)
+
+    return {**user.dict(), "user_id": user_id, "student_id": student_id, "token": token_dict}
+
 # async def get_token_data(token_id):
 #     query = tokens_table.select().where(tokens_table.c.id == token_id)
 #     return await database.fetch_one(query)
@@ -102,3 +123,28 @@ async def create_user(user: student_schema.UserCreate):
 async def get_uuid4():
     """Generate a random UUID."""
     return UUID(bytes=os.urandom(16), version=4).hex
+
+
+async def verify_google_token(token):
+
+    # (Receive token by HTTPS POST)
+
+    try:
+        # Specify the CLIENT_ID of the app that accesses the backend:
+        id_info = id_token.verify_oauth2_token(token, requests.Request())
+        # idinfo = id_token.verify_oauth2_token(token, requests.Request(), CLIENT_ID)
+
+        # Or, if multiple clients access the backend server:
+        # idinfo = id_token.verify_oauth2_token(token, requests.Request())
+        # if idinfo['aud'] not in [CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]:
+        #     raise ValueError('Could not verify audience.')
+
+        # If auth request is from a G Suite domain:
+        # if idinfo['hd'] != GSUITE_DOMAIN_NAME:
+        #     raise ValueError('Wrong hosted domain.')
+
+        # ID token is valid. Get the user's Google Account ID from the decoded token.
+        email = id_info['email']
+        return {"status": "ok", "email": email}
+    except ValueError:
+        return {"status": "error", "message": "Invalid token"}

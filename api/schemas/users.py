@@ -13,6 +13,13 @@ class UserCreate(BaseModel):
     external_password: str
 
 
+class UserCreateGoogle(BaseModel):
+    """ Check sign-up request """
+    email: EmailStr
+    external_login: str
+    external_password: str
+
+
 class UserBase(BaseModel):
     """ Build body of answer with User details """
     user_id: int

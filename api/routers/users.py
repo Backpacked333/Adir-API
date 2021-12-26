@@ -4,6 +4,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from api.schemas import users
 from api.utils import users as users_utils
 from api.utils.dependencies import get_current_user
+from api.utils.users import verify_google_token
 
 router = APIRouter(prefix="/users",)
 
@@ -39,3 +40,12 @@ async def auth(form_data: OAuth2PasswordRequestForm = Depends()):
 @router.get("/me", response_model=users.UserBase)
 async def read_users_me(current_user: users.User = Depends(get_current_user)):
     return current_user
+
+
+@router.post("/sign-up/google", response_model=users.User)
+async def create_user(user: users.UserCreate):
+    result = await verify_google_token(user.token)
+    if result["status"] == "error":
+        raise HTTPException(status_code=400, detail=result["message"])
+
+    return await users_utils.create_user_google(user)
