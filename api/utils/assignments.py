@@ -38,7 +38,9 @@ async def get_quizzes_by_user(user: user_schema.User):
     quiz_questions = [quiz[0] for quiz in quizzes]
     quiz_param = f"IN {tuple(quiz_questions)}" if len(quiz_questions) > 1 else f"= '{quiz_questions[0]}'"
 
-    query = """SELECT * 
+    query = """SELECT q.quiz_id, q.name, q.id, q.int_db, q.course_id, q.student_id, q.description, q.allowed_attempts,
+                q.due_at, q.due_date_required, q.grading_type, q.has_submitted_submissions, q.html_url,
+                q.locked, q.points_possible, q.submission_types, q.workflow_state
                FROM quizzes q
                LEFT JOIN quizzes_status st on st.quiz_id = q.quiz_id
                WHERE st.status IS NULL 

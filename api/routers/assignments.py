@@ -19,7 +19,7 @@ async def get_assignments(user: users.User = Depends(get_current_user)):
     return await assignments_utils.get_assignments_by_user(user=user)
 
 
-@router.get("/quizzes")
+@router.get("/quizzes", response_model=List[assignments.QuizzesBase])
 async def get_quizzes(user: users.User = Depends(get_current_user)):
     return await assignments_utils.get_quizzes_by_user(user=user)
 
