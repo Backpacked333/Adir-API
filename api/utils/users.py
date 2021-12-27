@@ -96,7 +96,7 @@ async def create_user(user: student_schema.UserCreate):
     return {**user.dict(), "user_id": user_id, "student_id": student_id, "token": token_dict}
 
 
-async def create_user_google(user: student_schema.UserCreateGoogle):
+async def create_user_email(user: student_schema.UserCreateEmail):
     """ Creates a new user in the database """
     student = StudentCreate(login=user.external_login, password=user.external_password)
     is_account_exist = await check_student(student)

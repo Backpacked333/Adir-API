@@ -15,6 +15,13 @@ class UserCreate(BaseModel):
 
 class UserCreateGoogle(BaseModel):
     """ Check sign-up request """
+    token: str
+    external_login: str
+    external_password: str
+
+
+class UserCreateEmail(BaseModel):
+    """ Check sign-up request """
     email: EmailStr
     external_login: str
     external_password: str

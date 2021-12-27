@@ -43,9 +43,11 @@ async def read_users_me(current_user: users.User = Depends(get_current_user)):
 
 
 @router.post("/sign-up/google", response_model=users.User)
-async def create_user(user: users.UserCreate):
+async def create_user(user: users.UserCreateGoogle):
     result = await verify_google_token(user.token)
     if result["status"] == "error":
         raise HTTPException(status_code=400, detail=result["message"])
 
-    return await users_utils.create_user_google(user)
+    user.email = result['email']
+
+    return await users_utils.create_user_email(user)
