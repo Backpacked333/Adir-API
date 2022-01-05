@@ -36,6 +36,9 @@ async def get_quizzes_by_user(user: user_schema.User):
 
     quizzes = await database.fetch_all(questions_query)
     quiz_questions = [quiz[0] for quiz in quizzes]
+    if not quiz_questions:
+        return []
+
     quiz_param = f"IN {tuple(quiz_questions)}" if len(quiz_questions) > 1 else f"= '{quiz_questions[0]}'"
 
     query = """SELECT q.quiz_id, q.name, q.id, q.int_db, q.course_id, q.student_id, q.description, q.allowed_attempts,

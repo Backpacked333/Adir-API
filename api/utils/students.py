@@ -6,7 +6,8 @@ from api.models.students import students_table
 from api.schemas import students as student_schema
 
 
-STUDENT_DOMAIN = 'https://canvas.instructure.com/login/canvas'
+STUDENT_DOMAIN = 'https://canvas.instructure.com'
+STUDENT_LOGIN_URL = f'{STUDENT_DOMAIN}/login/canvas'
 
 
 async def create_student(student: student_schema.StudentCreate, user_id: int):
@@ -30,7 +31,7 @@ async def get_student(user_id: int):
 async def login_account(login: str, password: str):
 
     async with httpx.AsyncClient() as client:
-        resp = await client.get(STUDENT_DOMAIN)
+        resp = await client.get(STUDENT_LOGIN_URL)
 
         tree = html.fromstring(resp.text)
         token = tree.xpath("//*[@id='login_form']/input[2]")[0]
@@ -40,5 +41,5 @@ async def login_account(login: str, password: str):
             'pseudonym_session[remember_me]': 1,
             'authenticity_token': token.value
         }
-        login_res = await client.post(STUDENT_DOMAIN, data=payload)
+        login_res = await client.post(STUDENT_LOGIN_URL, data=payload)
         return True if login_res.status_code == 302 else False
