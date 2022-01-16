@@ -1,6 +1,7 @@
 import base64
 import json
 import os.path
+import logging
 
 import aiofiles
 from api.models.assignments import assignments_table, questions_table, quizzes_table, quiz_answers_table, \
@@ -11,13 +12,20 @@ from api.schemas import users as user_schema
 
 from app import settings
 
+logger = logging.getLogger(__name__)
+
 
 async def get_assignments_by_user(user: user_schema.User):
+    students_ids = await get_students_ids(user)
+    query = assignments_table.select().where(assignments_table.c.student_id.in_(students_ids))
+    return await database.fetch_all(query)
+
+
+async def get_students_ids(user):
     query = students_table.select().where(students_table.c.user_id == user.user_id)
     students = await database.fetch_all(query)
     students_ids = [student['id'] for student in students]
-    query = assignments_table.select().where(assignments_table.c.student_id.in_(students_ids))
-    return await database.fetch_all(query)
+    return students_ids
 
 
 async def get_assignments_details(assignment_id: int):
@@ -26,29 +34,26 @@ async def get_assignments_details(assignment_id: int):
 
 
 async def get_quizzes_by_user(user: user_schema.User):
-    query = students_table.select()\
-        .where(students_table.c.user_id == user.user_id)
-    student = await database.fetch_one(query)
-    # query = quizzes_table.select().where(quizzes_table.c.student_id == student['id'])
+    students_ids = await get_students_ids(user)
+    questions_query = quizzes_table.select().where(quizzes_table.c.student_id.in_(students_ids))
 
-    questions_query = """SELECT DISTINCT(quiz_id) FROM questions
-                            WHERE student_id = '{0}'""".format(student['id'])
+    # questions_query = """SELECT DISTINCT(quiz_id) FROM questions
+    #                         WHERE student_id IN '{0}'""".format(students_ids)
 
-    quizzes = await database.fetch_all(questions_query)
+    quizzes = await database.fxetch_all(questions_query)
     quiz_questions = [quiz[0] for quiz in quizzes]
     if not quiz_questions:
         return []
 
+    quiz_questions = [str(quiz_question) for quiz_question in quiz_questions]
     quiz_param = f"IN {tuple(quiz_questions)}" if len(quiz_questions) > 1 else f"= '{quiz_questions[0]}'"
-
-    query = """SELECT q.quiz_id, q.name, q.id, q.int_db, q.course_id, q.student_id, q.description, q.allowed_attempts,
-                q.due_at, q.due_date_required, q.grading_type, q.has_submitted_submissions, q.html_url,
+    query = f"""SELECT q.quiz_id, q.name, q.id, q.int_db, q.course_id, q.student_id, q.description, q.allowed_attempts,
+                q.due_at,x q.due_date_required, q.grading_type, q.has_submitted_submissions, q.html_url,
                 q.locked, q.points_possible, q.submission_types, q.workflow_state
                FROM quizzes q
                LEFT JOIN quizzes_status st on st.quiz_id = q.quiz_id
                WHERE st.status IS NULL 
-               AND q.quiz_id {0}
-               AND q.student_id = '{1}'""".format(quiz_param, student['id'])
+               AND q.int_db {quiz_param}"""
     return await database.fetch_all(query)
 
 
