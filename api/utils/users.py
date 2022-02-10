@@ -17,7 +17,7 @@ from api.schemas.users import UserBase
 
 from api.utils.students import check_student
 
-from app import settings
+import settings
 from api.schemas.students import StudentCreate
 from api.utils.students import create_student
 

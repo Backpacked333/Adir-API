@@ -10,7 +10,7 @@ from api.models.databases import database
 from api.models.students import students_table
 from api.schemas import users as user_schema
 
-from app import settings
+import settings
 
 logger = logging.getLogger(__name__)
 

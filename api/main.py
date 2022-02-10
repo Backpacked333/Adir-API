@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import settings
 
 from api.models.databases import database
-from .routers import users, assignments, comments
+from .routers import users, assignments, comments, schools
 
 
 def configure() -> FastAPI:
@@ -26,9 +26,10 @@ def configure() -> FastAPI:
     async def shutdown() -> None:
         await database.disconnect()
 
-    app.include_router(comments.router)
-    app.include_router(users.router)
-    app.include_router(assignments.router)
+    app.include_router(comments.router, tags=["comments"])
+    app.include_router(users.router, tags=["users"])
+    app.include_router(assignments.router, tags=["assignments"])
+    app.include_router(schools.router, tags=["schools"])
 
     return app
 

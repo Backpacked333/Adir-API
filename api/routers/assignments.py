@@ -8,8 +8,8 @@ from api.utils.dependencies import get_current_user
 from api.utils.students import get_student
 from api.schemas.assignments import QuizAnswerCreate
 
-from app import settings
-from app.api.schemas.assignments import QuizAnswers
+import settings
+from ..schemas.assignments import QuizAnswers
 
 router = APIRouter(prefix="/assignments",)
 
