@@ -5,7 +5,7 @@ from datetime import datetime
 class SchoolIn(BaseModel):
     name: str
     login_form_url: HttpUrl
-    logo_url: HttpUrl
+    logo_url: HttpUrl = "https://qwertycoding.com/Group%208427.png"
 
 
 class School(SchoolIn):
