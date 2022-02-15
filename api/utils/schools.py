@@ -30,11 +30,11 @@ async def create_school(school: schemas.SchoolIn) -> schemas.School:
 
     created_at = datetime.now()
 
-    if not is_valid_for_scraping_url(url=school.login_form_url):
-        raise HTTPException(
-            status_code=422,
-            detail="login_form_url is valid for scraping url. Example: https://canvas.harvard.edu",
-        )
+    # if not is_valid_for_scraping_url(url=school.login_form_url):
+    #     raise HTTPException(
+    #         status_code=422,
+    #         detail="login_form_url isn't valid for scraping url. Example: https://canvas.harvard.edu",
+    #     )
 
     query = school_table.insert().values(
         name=school.name,
