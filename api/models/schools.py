@@ -24,7 +24,7 @@ create table schools (
     logo_url varchar,
     created_at timestamp,
     username varchar,
-    password varchar,
+    password varchar
 );
 
 GRANT ALL ON  schools TO  lms;
