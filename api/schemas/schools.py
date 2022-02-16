@@ -11,3 +11,9 @@ class SchoolIn(BaseModel):
 class School(SchoolIn):
     id: int
     created_at: datetime
+
+
+class SchoolLogin(BaseModel):
+    url: str
+    username: str
+    password: str
