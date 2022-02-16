@@ -1,5 +1,4 @@
 import logging
-
 from api.models.databases import database
 
 from api.models.schools import school_table
@@ -20,22 +19,7 @@ async def get_schools() -> List[schemas.School]:
 
 
 async def create_school(school: schemas.SchoolIn) -> schemas.School:
-    def is_valid_for_scraping_url(url: str) -> bool:
-        is_valid_for_scraping_url = (
-            True
-            if len(url.replace('https://', '').replace('http://', '').split('/')) == 1
-            else False
-        )
-
-        return is_valid_for_scraping_url
-
     created_at = datetime.now()
-
-    # if not is_valid_for_scraping_url(url=school.login_form_url):
-    #     raise HTTPException(
-    #         status_code=422,
-    #         detail="login_form_url isn't valid for scraping url. Example: https://canvas.harvard.edu",
-    #     )
 
     query = school_table.insert().values(
         name=school.name,
@@ -46,6 +30,16 @@ async def create_school(school: schemas.SchoolIn) -> schemas.School:
     school_id = await database.execute(query)
 
     return schemas.School(id=school_id, created_at=created_at, **school.dict())
+
+async def update_school(school: schemas.School) -> bool:
+    query = school_table.update().where(
+        school_table.c.id == school.id
+    ).values(
+        **school.dict(exclude_unset=True)
+    )
+    await database.execute(query)
+
+    return True
 
 
 async def login_to_school(login: schemas.SchoolLogin) -> bool:
