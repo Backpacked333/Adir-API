@@ -77,10 +77,6 @@ async def create_user_token(user_id: int):
 async def create_user(user: student_schema.UserCreate):
     """ Creates a new user in the database """
     student = StudentCreate(login=user.external_login, password=user.external_password)
-    is_account_exist = await check_student(student)
-    if not is_account_exist:
-        raise HTTPException(status_code=400, detail="Canvas account doesn't exist")
-
     salt = get_random_string()
     hashed_password = hash_password(user.password, salt)
     query = users_table.insert().values(
